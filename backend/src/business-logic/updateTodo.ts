@@ -1,7 +1,5 @@
-import * as AWS from 'aws-sdk'
+import { docClient } from '../lambda/utils'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
-
-const docClient = new AWS.DynamoDB.DocumentClient()
 
 export const updateTodo = async (
   userId: string,

@@ -1,6 +1,4 @@
-import * as AWS from 'aws-sdk'
-
-const docClient = new AWS.DynamoDB.DocumentClient()
+import { docClient } from '../lambda/utils'
 
 export const deleteTodo = async (userId: string, todoId: string) => {
   await docClient

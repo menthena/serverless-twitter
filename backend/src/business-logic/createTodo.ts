@@ -1,8 +1,6 @@
-import * as AWS from 'aws-sdk'
 import * as uuid from 'uuid'
+import { docClient } from '../lambda/utils'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
-
-const docClient = new AWS.DynamoDB.DocumentClient()
 
 export const createTodo = async (userId: string, todo: CreateTodoRequest) => {
   const Item = {

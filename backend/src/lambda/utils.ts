@@ -1,5 +1,10 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
-import { parseUserId } from "../auth/utils";
+import { APIGatewayProxyEvent } from 'aws-lambda'
+import { parseUserId } from '../auth/utils'
+import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
+
+const XAWS = AWSXRay.capture(AWS)
+export const docClient = new XAWS.DynamoDB.DocumentClient()
 
 /**
  * Get a user id from an API Gateway event
