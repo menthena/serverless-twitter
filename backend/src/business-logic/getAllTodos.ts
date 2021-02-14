@@ -9,7 +9,7 @@ export const getAllTodos = async (userId: string) => {
       IndexName: process.env.INDEX_NAME,
       KeyConditionExpression: 'userId = :userId',
       ExpressionAttributeValues: {
-        ':userId': 
+        ':userId': userId
       }
     })
     .promise()
