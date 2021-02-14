@@ -1,4 +1,7 @@
 import { S3 } from 'aws-sdk'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('lambda')
 
 export const getUploadUrl = async (todoId: string) => {
   const s3 = new S3({
@@ -10,5 +13,7 @@ export const getUploadUrl = async (todoId: string) => {
     Key: todoId, // id of an object this URL allows access to
     Expires: '300' // A URL is only valid for 5 minutes
   })
+  logger.info('signed url', signedUrl)
+
   return signedUrl
 }

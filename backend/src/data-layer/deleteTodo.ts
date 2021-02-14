@@ -1,4 +1,6 @@
-import { docClient } from '../lambda/utils'
+import { createDynamoDBClient } from '../lambda/utils'
+
+const docClient = createDynamoDBClient()
 
 export const deleteTodo = async (userId: string, todoId: string) => {
   await docClient

@@ -1,5 +1,7 @@
-import { docClient } from '../lambda/utils'
+import { createDynamoDBClient } from '../lambda/utils'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+
+const docClient = createDynamoDBClient()
 
 export const updateTodo = async (
   userId: string,

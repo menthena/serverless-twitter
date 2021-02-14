@@ -1,6 +1,8 @@
 import * as uuid from 'uuid'
-import { docClient } from '../lambda/utils'
+import { createDynamoDBClient } from '../lambda/utils'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
+
+const docClient = createDynamoDBClient()
 
 export const createTodo = async (userId: string, todo: CreateTodoRequest) => {
   const Item = {
