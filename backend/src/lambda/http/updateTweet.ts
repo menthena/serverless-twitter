@@ -1,10 +1,11 @@
 import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 
+import { UpdateTweetRequest } from '../../requests/UpdateTweetRequest'
 import { getUserId } from '../utils'
-import { createTodo } from '../../data-layer/createTodo'
+import { updateTweet } from '../../data-layer/updateTweet'
+
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 import { createLogger } from '../../utils/logger'
@@ -13,20 +14,21 @@ const logger = createLogger('lambda')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const newTodo: CreateTodoRequest = JSON.parse(event.body)
+    const tweetId = event.pathParameters.tweetId
     const userId = getUserId(event)
+    const updatedTweet: UpdateTweetRequest = JSON.parse(event.body)
     try {
-      const todo = await createTodo(userId, newTodo)
-      logger.error('success createTodo', todo)
+      const tweet = await updateTweet(userId, tweetId, updatedTweet)
+      logger.info('success update tweet', updatedTweet)
 
       return {
-        statusCode: 201,
+        statusCode: 200,
         body: JSON.stringify({
-          item: todo
+          item: tweet
         })
       }
     } catch (e) {
-      logger.error('error createTodo', e)
+      logger.error('error update tweet', e)
     }
   }
 )

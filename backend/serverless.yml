@@ -1,7 +1,7 @@
-org: menthena4
-app: serverless-todo-app-app
+org: menthena
+app: serverless-twitter-app
 service:
-  name: serverless-todo-app
+  name: serverless-twitter-app
 
 plugins:
   - serverless-webpack
@@ -18,80 +18,80 @@ provider:
     lambda: true
 
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'us-east-1'}
+  region: ${opt:region, 'us-east-2'}
   environment:
-    TODOS_TABLE: todo-v2-${self:provider.stage}
-    INDEX_NAME: index-${self:provider.stage}
-    IMAGE_S3_BUCKET: udagram-ahmet-s3-serverless-${self:provider.stage}
+    TWEET_TABLE: twitter-v4-${self:provider.stage}
+    DAILY_INDEX_NAME: daily-index-${self:provider.stage}
+    IMAGE_S3_BUCKET: ahmet-serverless-twitter-${self:provider.stage}
 
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  GetTodos:
-    handler: src/lambda/http/getTodos.handler
+  GetDailyTweets:
+    handler: src/lambda/http/getDailyTweets.handler
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.INDEX_NAME}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEET_TABLE}/index/${self:provider.environment.DAILY_INDEX_NAME}
     events:
       - http:
           method: get
-          path: todos
+          path: tweets
           cors: true
           authorizer: Auth
 
-  CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+  NewTweet:
+    handler: src/lambda/http/newTweet.handler
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEET_TABLE}
     events:
       - http:
           method: post
-          path: todos
+          path: tweet
           cors: true
           authorizer: Auth
           requestValidatorName: RequestBodyValidator
           documentation:
-            summary: Create new TODO
-            description: Create new TODO
+            summary: New Tweet
+            description: New Tweet
             requestModels:
-              'application/json': CreateTodoRequest
+              'application/json': NewTweetRequest
 
-  UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
+  UpdateTweet:
+    handler: src/lambda/http/updateTweet.handler
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEET_TABLE}
     events:
       - http:
           method: patch
-          path: todos/{todoId}
+          path: tweets/{tweetId}
           cors: true
           authorizer: Auth
           documentation:
-            summary: Update TODO
-            description: Update TODO
+            summary: Update Tweet
+            description: Update Tweet
             requestModels:
-              'application/json': UpdateTodoRequest
+              'application/json': UpdateTweetRequest
 
-  DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler
+  DeleteTweet:
+    handler: src/lambda/http/deleteTweet.handler
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEET_TABLE}
     events:
       - http:
           method: delete
-          path: todos/{todoId}
+          path: tweets/{tweetId}
           cors: true
           authorizer: Auth
 
@@ -101,7 +101,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEET_TABLE}
       - Effect: Allow
         Action:
           - s3:PutObject
@@ -111,7 +111,7 @@ functions:
     events:
       - http:
           method: post
-          path: todos/{todoId}/attachment
+          path: tweets/{tweetId}/attachment
           cors: true
           authorizer: Auth
 
@@ -120,15 +120,15 @@ custom:
     api:
       info:
         version: v1.0.0
-        title: TODO Api
-        description: Serverless TODO app
+        title: Twitter API
+        description: Serverless Twitter app
     models:
-      - name: CreateTodoRequest
+      - name: NewTweetRequest
         contentType: application/json
-        schema: ${file(requests/CreateTodoRequest.json)}
-      - name: UpdateTodoRequest
+        schema: ${file(requests/NewTweetRequest.json)}
+      - name: UpdateTweetRequest
         contentType: application/json
-        schema: ${file(requests/UpdateTodoRequest.json)}
+        schema: ${file(requests/UpdateTweetRequest.json)}
 
 resources:
   Resources:
@@ -139,27 +139,29 @@ resources:
           Ref: ApiGatewayRestApi
         ValidateRequestBody: true
         ValidateRequestParameters: false
-    TodosTable:
+    tweetsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: todoId
+          - AttributeName: tweetId
+            AttributeType: S
+          - AttributeName: createdAt
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: tweetId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
-        LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.INDEX_NAME}
+        TableName: ${self:provider.environment.TWEET_TABLE}
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.DAILY_INDEX_NAME}
             KeySchema:
-              - AttributeName: userId
+              - AttributeName: createdAt
                 KeyType: HASH
-              - AttributeName: todoId
+              - AttributeName: tweetId
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index

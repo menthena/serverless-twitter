@@ -2,13 +2,13 @@ import { createDynamoDBClient } from '../lambda/utils'
 
 const docClient = createDynamoDBClient()
 
-export const deleteTodo = async (userId: string, todoId: string) => {
+export const deleteTweet = async (userId: string, tweetId: string) => {
   await docClient
     .delete({
-      TableName: process.env.TODOS_TABLE,
+      TableName: process.env.TWEET_TABLE,
       Key: {
         userId,
-        todoId
+        tweetId
       }
     })
     .promise()

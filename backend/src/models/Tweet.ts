@@ -1,9 +1,8 @@
-export interface TodoItem {
+export interface Tweet {
   userId: string
-  todoId: string
+  tweetId: string
   createdAt: string
   name: string
-  dueDate: string
-  done: boolean
+  message: string
   attachmentUrl?: string
 }

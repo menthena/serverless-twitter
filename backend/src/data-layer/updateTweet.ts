@@ -1,22 +1,22 @@
 import { createDynamoDBClient } from '../lambda/utils'
-import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+import { UpdateTweetRequest } from '../requests/UpdateTweetRequest'
 
 const docClient = createDynamoDBClient()
 
-export const updateTodo = async (
+export const updateTweet = async (
   userId: string,
-  todoId: string,
-  todo: UpdateTodoRequest
+  tweetId: string,
+  tweet: UpdateTweetRequest
 ) => {
   const Item = {
-    todoId,
+    tweetId,
     userId,
-    ...todo
+    ...tweet
   }
 
   await docClient
     .put({
-      TableName: process.env.TODOS_TABLE,
+      TableName: process.env.TWEET_TABLE,
       Item
     })
     .promise()

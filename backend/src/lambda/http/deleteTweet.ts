@@ -1,28 +1,29 @@
 import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { getAllTodos } from '../../data-layer/getAllTodos'
+import { getUserId } from '../utils'
+import { deleteTweet } from '../../data-layer/deleteTweet'
+
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
-import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('lambda')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    const tweetId = event.pathParameters.tweetId
     const userId = getUserId(event)
     try {
-      const todos = await getAllTodos(userId)
-      logger.info('success getTodos', todos)
+      await deleteTweet(userId, tweetId)
+      logger.info('success delete tweet', userId, tweetId)
+
       return {
-        statusCode: 200,
-        body: JSON.stringify({
-          items: todos
-        })
+        statusCode: 201,
+        body: JSON.stringify({})
       }
     } catch (e) {
-      logger.error('error getTodos', e)
+      logger.error('delete tweet', tweetId, e)
     }
   }
 )

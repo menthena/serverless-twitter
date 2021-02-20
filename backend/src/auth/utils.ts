@@ -11,3 +11,9 @@ export function parseUserId(jwtToken: string): string {
   const decodedJwt = decode(jwtToken) as JwtPayload
   return decodedJwt.sub
 }
+
+export function parseUserInfo(jwtToken: string) {
+  const decodedJwt = decode(jwtToken) as JwtPayload
+  console.log('JWT', decodedJwt)
+  return { name: decodedJwt.name, picture: decodedJwt.picture }
+}

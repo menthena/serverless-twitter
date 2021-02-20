@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "CreateTodo",
+  "title": "NewTweet",
   "type": "object",
   "properties": {
     "name": {

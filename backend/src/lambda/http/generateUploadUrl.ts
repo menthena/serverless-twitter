@@ -12,15 +12,15 @@ const logger = createLogger('lambda')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const todoId = event.pathParameters.todoId
+    const tweetId = event.pathParameters.tweetId
     const userId = getUserId(event)
     try {
-      const signedUrl = await getUploadUrl(todoId)
-      logger.info(`get signed url`, todoId, signedUrl)
-      const attachmentUrl = `https://${process.env.IMAGE_S3_BUCKET}.s3.amazonaws.com/${todoId}`
+      const signedUrl = await getUploadUrl(tweetId)
+      logger.info(`get signed url`, tweetId, signedUrl)
+      const attachmentUrl = `https://${process.env.IMAGE_S3_BUCKET}.s3.amazonaws.com/${tweetId}`
       logger.info(`attachmentUrl ${attachmentUrl}`)
-      await updateAttachmentUrl(userId, todoId, attachmentUrl)
-      logger.info('updated attachmentUrl', todoId, attachmentUrl)
+      await updateAttachmentUrl(userId, tweetId, attachmentUrl)
+      logger.info('updated attachmentUrl', tweetId, attachmentUrl)
       return {
         statusCode: 200,
         body: JSON.stringify({
